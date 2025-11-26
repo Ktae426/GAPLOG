@@ -34,7 +34,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  static const Color customLoginButtonColor = Color(0xFF228B6A); 
+  static const Color customLoginButtonColor = Color(0xFF228B6A);
 
   @override
   void dispose() {
@@ -51,23 +51,23 @@ class _LoginScreenState extends State<LoginScreen> {
     print('--- 로그인 버튼 클릭 (UI 테스트 모드) ---');
     print('아이디: $id');
     print('비밀번호: $password');
-    
+
     // UI 테스트 모드이므로 화면 전환 X
     if (id.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('아이디와 비밀번호를 입력해 주세요.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('아이디와 비밀번호를 입력해 주세요.')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = Colors.green.shade50;
-    
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent, 
+        backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 0,
       ),
@@ -78,12 +78,9 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const SizedBox(height: 120),
-              
+
               // 1. 로고 이미지 및 앱 이름
-              Image.asset(
-                'assets/logo.png',
-                height: 100,
-              ),
+              Image.asset('images/logo.png', height: 100),
               const SizedBox(height: 10),
               const Text(
                 'GapLog',
@@ -93,12 +90,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.black87,
                 ),
               ),
-              
+
               const SizedBox(height: 80),
-              
+
               // 2. 아이디 입력 필드
               TextFormField(
-                controller: _idController, 
+                controller: _idController,
                 decoration: InputDecoration(
                   hintText: '아이디',
                   contentPadding: EdgeInsets.zero,
@@ -112,10 +109,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-              
+
               // 3. 비밀번호 입력 필드
               TextFormField(
-                controller: _passwordController, 
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: '비밀번호',
@@ -129,15 +126,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 15),
-              
+
               // 4. 회원가입 | 비밀번호 찾기 링크 (클릭 시 print만 실행)
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => print('회원가입 링크 클릭!'), 
+                    onPressed: () => print('회원가입 링크 클릭!'),
                     child: Text(
                       '회원가입',
                       style: TextStyle(color: Colors.grey.shade700),
@@ -153,15 +150,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 50),
-              
+
               // 5. 로그인 버튼
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _handleLogin, 
+                  onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: customLoginButtonColor,
                     shape: RoundedRectangleBorder(
@@ -170,7 +167,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: const Text(
                     '로그인',
-                    style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
