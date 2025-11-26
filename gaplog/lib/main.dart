@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
               
               // 1. 로고 이미지 및 앱 이름
               Image.asset(
-                'assets/logo.png', // assets 폴더에 logo.png 파일이 존재해야 합니다.
+                'assets/logo.png',
                 height: 100,
               ),
               const SizedBox(height: 10),
