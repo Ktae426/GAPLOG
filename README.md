@@ -18,7 +18,7 @@
 <br>
 
 ## 🛠 기술 스택
-- 프론트엔드: Flutter, Dart
+- UI/UX: Flutter, Dart
 - 데이터베이스: Firebase
 
 <br>
