@@ -1,10 +1,6 @@
-// signup.dart
 
 import 'package:flutter/material.dart';
 
-// ====================================================================
-// SignupScreen: 회원가입 화면 UI 및 로직 구현 (가입 완료 시 로그인 화면으로 복귀)
-// ====================================================================
 class SignupScreen extends StatefulWidget {
   final VoidCallback onSignupSuccess;
   final VoidCallback onToggleToLogin;
