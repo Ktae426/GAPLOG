@@ -1,9 +1,16 @@
+// main.dart
+
 import 'package:flutter/material.dart';
 
-// 앱 진입
+import 'home.dart';
+import 'signup.dart';
+import 'onboarding.dart';
+import 'global_data.dart'; // GlobalData import
+
 void main() {
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -11,21 +18,137 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GapLog 초기 로그인 UI',
+      title: '경력단절자 앱',
       theme: ThemeData(
         primarySwatch: Colors.lightGreen,
         scaffoldBackgroundColor: Colors.green.shade50,
         useMaterial3: false,
       ),
-      // 시작 화면을 LoginScreen으로 바로 설정합니다.
-      home: const LoginScreen(),
+      initialRoute: '/', 
+      routes: {
+        '/': (context) => const AuthenticationWrapper(),
+        '/home': (context) => AppNavigator(onSignOut: () {
+          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        }),
+        '/onboarding': (context) => OnboardingScreen(
+          onDataSubmitted: () {
+            // 정보 입력 완료 시 홈으로 이동
+            Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+          },
+          onSkip: () {
+            // 건너뛰기 완료 시 홈으로 이동
+            GlobalData.isSkipped = true;
+            Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+          },
+        ),
+      },
     );
   }
 }
 
-// 로그인 화면
+
+class AuthenticationWrapper extends StatefulWidget {
+  const AuthenticationWrapper({super.key});
+
+  @override
+  State<AuthenticationWrapper> createState() => _AuthenticationWrapperState();
+}
+
+class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
+  bool _isFirstLogin = true;
+
+  void _signInSuccess() {
+    setState(() {
+      // 상태 변경 로직
+    });
+
+    if (_isFirstLogin || GlobalData.isSkipped) {
+      _isFirstLogin = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Build가 완료된 후 온보딩 화면으로 리디렉션
+        Navigator.of(context).pushNamedAndRemoveUntil('/onboarding', (route) => false);
+      });
+    } else {
+      // 이미 온보딩을 완료했다면 홈으로 바로 이동 (재로그인)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+      });
+    }
+  }
+
+  void _signOut() {
+    setState(() {
+      // 로그아웃 시 상태 초기화
+      _isFirstLogin = true;
+      GlobalData.isSkipped = true;
+      GlobalData.career = '0년';
+      GlobalData.previousJob = '-';
+      GlobalData.gapYear = '-';
+      GlobalData.desiredJob = '-';
+      GlobalData.desiredReturnTime = '-';
+      GlobalData.skills = [];
+
+      // 진행률 상태 초기화
+      GlobalData.isExperienceCompleted = false;
+      GlobalData.isEducationCompleted = false;
+      GlobalData.isLicenseCompleted = false;
+      GlobalData.isPartTimeCompleted = false;
+      GlobalData.isPortfolioCompleted = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AuthScreen(onSignIn: _signInSuccess);
+  }
+}
+
+
+class AuthScreen extends StatefulWidget {
+  final VoidCallback onSignIn;
+  const AuthScreen({super.key, required this.onSignIn});
+
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+enum AuthMode { login, signup }
+
+class _AuthScreenState extends State<AuthScreen> {
+  AuthMode _authMode = AuthMode.login;
+
+  void _toggleAuthMode() {
+    setState(() {
+      if (_authMode == AuthMode.login) {
+        _authMode = AuthMode.signup;
+      } else {
+        _authMode = AuthMode.login;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_authMode == AuthMode.login) {
+      return LoginScreen(
+        onLogin: widget.onSignIn,
+        onToggleToSignup: _toggleAuthMode,
+      );
+    } else {
+      return SignupScreen(
+        onSignupSuccess: widget.onSignIn,
+        onToggleToLogin: _toggleAuthMode,
+      );
+    }
+  }
+}
+
+
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback onLogin;
+  final VoidCallback onToggleToSignup;
+
+  const LoginScreen({super.key, required this.onLogin, required this.onToggleToSignup});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -34,7 +157,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  static const Color customLoginButtonColor = Color(0xFF228B6A); 
+
+  static const Color customLoginButtonColor = Color(0xFF228B6A);
 
   @override
   void dispose() {
@@ -47,27 +171,22 @@ class _LoginScreenState extends State<LoginScreen> {
     final id = _idController.text;
     final password = _passwordController.text;
 
-    // 로그인 로직 임시 출력
-    print('--- 로그인 버튼 클릭 (UI 테스트 모드) ---');
-    print('아이디: $id');
-    print('비밀번호: $password');
-    
-    // UI 테스트 모드이므로 화면 전환 X
-    if (id.isEmpty || password.isEmpty) {
+    print('--- 로그인 시도 ---');
+
+    if (id.isNotEmpty && password.isNotEmpty) {
+      widget.onLogin();
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('아이디와 비밀번호를 입력해 주세요.')),
+        const SnackBar(content: Text('아이디와 비밀번호를 입력해 주세요.'), duration: Duration(seconds: 1)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = Colors.green.shade50;
-    
     return Scaffold(
-      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent, 
+        backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 0,
       ),
@@ -78,10 +197,10 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const SizedBox(height: 120),
-              
+
               // 1. 로고 이미지 및 앱 이름
               Image.asset(
-                'assets/logo.png',
+                'images/logo.png',
                 height: 100,
               ),
               const SizedBox(height: 10),
@@ -93,51 +212,55 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.black87,
                 ),
               ),
-              
+
               const SizedBox(height: 80),
-              
+
               // 2. 아이디 입력 필드
               TextFormField(
-                controller: _idController, 
+                controller: _idController,
+                style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                   hintText: '아이디',
+                  hintStyle: TextStyle(color: Colors.grey.shade600),
                   contentPadding: EdgeInsets.zero,
                   isDense: true,
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey.shade400),
                   ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.green.shade700),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: customLoginButtonColor),
                   ),
                 ),
               ),
               const SizedBox(height: 30),
-              
+
               // 3. 비밀번호 입력 필드
               TextFormField(
-                controller: _passwordController, 
+                controller: _passwordController,
                 obscureText: true,
+                style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                   hintText: '비밀번호',
+                  hintStyle: TextStyle(color: Colors.grey.shade600),
                   contentPadding: EdgeInsets.zero,
                   isDense: true,
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey.shade400),
                   ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.green.shade700),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: customLoginButtonColor),
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 15),
-              
-              // 4. 회원가입 | 비밀번호 찾기 링크 (클릭 시 print만 실행)
+
+              // 4. 회원가입 | 비밀번호 찾기 링크
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => print('회원가입 링크 클릭!'), 
+                    onPressed: widget.onToggleToSignup,
                     child: Text(
                       '회원가입',
                       style: TextStyle(color: Colors.grey.shade700),
@@ -145,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const Text('|', style: TextStyle(color: Colors.grey)),
                   TextButton(
-                    onPressed: () => print('비밀번호 찾기 링크 클릭!'),
+                    onPressed: () => print('비밀번호 찾기 클릭!'),
                     child: Text(
                       '비밀번호 찾기',
                       style: TextStyle(color: Colors.grey.shade700),
@@ -153,15 +276,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 50),
-              
+
               // 5. 로그인 버튼
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _handleLogin, 
+                  onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: customLoginButtonColor,
                     shape: RoundedRectangleBorder(
