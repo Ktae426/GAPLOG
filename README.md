@@ -27,11 +27,11 @@
 
 | 이름 | 역할 | GitHub |
 |------|--------|---------|
-| 김태우 |  | 🔗 https://github.com/Ktae426 |
-| 장현성 |  | 🔗 https://github.com/Solquick24 |
-| 최영혜 |  | 🔗 https://github.com/cyh1443 |
-| 한상균 |  | 🔗 https://github.com/Copi-stud |
-| 오태영 |  | 🔗 https://github.com/otaeyeong2003 |
+| 김태우 | UI/UX 구현 | 🔗 https://github.com/Ktae426 |
+| 장현성 | UI/UX 구현 | 🔗 https://github.com/Solquick24 |
+| 최영혜 | 데이터베이스 구현 | 🔗 https://github.com/cyh1443 |
+| 한상균 | UI/UX 구현 | 🔗 https://github.com/Copi-stud |
+| 오태영 | 데이터베이스 구현 | 🔗 https://github.com/otaeyeong2003 |
 
 <br>
 
