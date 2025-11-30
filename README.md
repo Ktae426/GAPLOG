@@ -31,7 +31,7 @@
 | 장현성 |  | 🔗 https://github.com/Solquick24 |
 | 최영혜 |  | 🔗 https://github.com/cyh1443 |
 | 한상균 |  | 🔗 https://github.com/Copi-stud |
-| 오태영 |  | 🔗  |
+| 오태영 |  | 🔗 https://github.com/otaeyeong2003 |
 
 <br>
 
