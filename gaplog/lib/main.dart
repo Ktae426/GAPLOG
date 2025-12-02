@@ -1,12 +1,22 @@
-
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'home.dart';
 import 'signup.dart';
 import 'onboarding.dart';
+import 'login_page.dart';
 import 'global_data.dart'; // GlobalData import
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MyApp());
 }
 
@@ -166,19 +176,45 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
+    final email = _idController.text.trim();
+    final password = _passwordController.text.trim();
     final id = _idController.text;
-    final password = _passwordController.text;
 
     print('--- 로그인 시도 ---');
 
-    if (id.isNotEmpty && password.isNotEmpty) {
-      widget.onLogin();
-    } else {
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('아이디와 비밀번호를 입력해 주세요.'), duration: Duration(seconds: 1)),
       );
+      return;  // ❗ 입력 안되면 함수 종료
     }
+
+    try {
+      // Firebase 로그인
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      print("로그인 성공");
+      widget.onLogin();  // 로그인 성공 후 기존 네비게이션 로직 실행
+
+    } catch (e) {
+      print("로그인 실패: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('로그인 실패: $e')),
+      );
+    }
+    final user = FirebaseAuth.instance.currentUser;
+
+    final data = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get();
+
+    print(data['name']); // Firestore에서 가져온 데이터
+
   }
 
   @override

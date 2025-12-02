@@ -33,26 +33,6 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBVLQw0TeAaE0Xr63WMhzQwgNmsRkcvcE8",
-      authDomain: "gaplog-88406.firebaseapp.com",
-      projectId: "gaplog-88406",
-      storageBucket: "gaplog-88406.firebasestorage.app",
-      messagingSenderId: "982564966906",
-      appId: "1:982564966906:web:d55e73330d5e835379d443",
-      measurementId: "G-BHXW10L212"
-    };  
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    console.log("Firebase connected!");
-  </script>
-
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

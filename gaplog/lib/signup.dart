@@ -1,4 +1,5 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -21,6 +22,37 @@ class _SignupScreenState extends State<SignupScreen> {
   // 닉네임 컨트롤러
   final TextEditingController _nicknameController = TextEditingController();
 
+
+  Future<void> _signupUser() async {
+    final emailLocal = _idController.text.trim();
+    final email = "$emailLocal@gmail.com";
+    final password = _passwordController.text.trim();
+    final name = _nicknameController.text.trim();
+
+    try {
+      // 1) Auth 회원 생성
+      UserCredential userCred = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+
+      // 2) Firestore DB 생성
+      await FirebaseFirestore.instance.collection('users').doc(userCred.user!.uid).set({
+        "email": email,
+        "name": name,
+        "createdAt": Timestamp.now(),
+      });
+
+      print("회원가입 및 DB 저장 완료");
+      widget.onSignupSuccess();
+
+    } catch (e) {
+      print("회원가입 오류: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('회원가입 실패: $e')),
+      );
+    }
+  }
+
   // 커스텀 색상 정의
   static const Color customButtonColor = Color(0xFF228B6A);
   static const Color cancelColor = Color(0xFFFFA000);
@@ -34,19 +66,23 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  void _handleSignup() {
+  void _handleSignup() async {
     if (_formKey.currentState!.validate()) {
       // 폼 유효성 검사 통과 시
       print('회원가입 정보 입력 완료 및 유효성 검사 통과.');
       print('닉네임: ${_nicknameController.text}');
 
-      // 회원가입 완료 후 로그인 화면으로 돌아감
+      /*// 회원가입 완료 후 로그인 화면으로 돌아감
       widget.onToggleToLogin();
 
       // 사용자에게 성공 메시지 표시
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('회원가입이 완료되었습니다. 로그인해 주세요.'), duration: Duration(seconds: 2)),
-      );
+      );*/
+
+      // Firebase Auth + Firestore 저장 실행
+      await _signupUser();
+      widget.onToggleToLogin();
     }
   }
 
